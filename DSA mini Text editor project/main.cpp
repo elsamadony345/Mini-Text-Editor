@@ -6,6 +6,7 @@
 //
 #include <string>
 #include <iostream>
+#include <vector>
 using namespace std;
 
 struct Line {
@@ -68,6 +69,7 @@ struct Line {
                 End->nextLine = newline ;
                 newline->previousLine = End ;
                 End = newline ;
+                numberOfLines++ ;
             }
         }
         void insertLine(string newLineText , int placeOfInsertion) {
@@ -77,10 +79,15 @@ struct Line {
             }else if(placeOfInsertion > numberOfLines+1) {
                 cout<<"sorry but the line "<<placeOfInsertion<<" is out of scope the file contains : "<<numberOfLines<<" lines "<<endl;
             }else if (numberOfLines == 1 ){
+                newline->nextLine =Start ;
+                Start->previousLine = newline ;
                 Start = newline ;
-                End = newline;
-                numberOfLines = 1;
-                }else{
+                numberOfLines++;
+            }else if (placeOfInsertion == numberOfLines+1){
+                End->nextLine = newline ;
+                newline->previousLine = End ;
+                End = newline ;
+            }else{
                 if(placeOfInsertion < numberOfLines/2){
                     Line* temp = Start ;
                     int counter = 0 ;
@@ -88,11 +95,11 @@ struct Line {
                         counter++;
                         temp =temp->nextLine ;
                     }
-                    numberOfLines++ ;
                     newline->nextLine = temp->nextLine ;
                     temp->nextLine->previousLine = newline ;
                     temp->nextLine = newline ;
                     newline->previousLine = temp ;
+                    numberOfLines++ ;
                 }else {
                     Line* temp = End ;
                     int counter = numberOfLines ;
@@ -100,11 +107,11 @@ struct Line {
                         counter-- ;
                         temp =temp->previousLine ;
                     }
-                    numberOfLines++ ;
                     newline->nextLine = temp->nextLine ;
                     temp->nextLine->previousLine = newline ;
                     temp->nextLine = newline ;
                     newline->previousLine = temp ;
+                    numberOfLines++ ;
                 }
             }
         }
@@ -144,6 +151,19 @@ struct Line {
                 Start = nullptr ;
                 End = nullptr ;
                 delete delptr ;
+                numberOfLines = 0 ;
+            }else if(lineNumber == numberOfLines){
+                Line * delptr = End ;
+                End = End->previousLine ;
+                End->nextLine = nullptr ;
+                delete delptr ;
+                cout<<"the last line of number : "<<numberOfLines<<" has been deleted successfully."<<endl;
+                numberOfLines-- ;
+            }else if (lineNumber == 1 ) {
+                Line*delptr = Start ;
+                Start = Start->nextLine;
+                delete delptr ;
+                cout<<"the line of number 1 has been successfully deleted"<<endl;
             }else{
                 if(lineNumber < numberOfLines/2){
                     Line* temp = Start ;
@@ -198,6 +218,61 @@ struct Line {
                 }
             }
         }
+        void findAll(string wordToBeFound){
+            Line* temp = Start ;
+            int counter = 1 ;
+            vector<int> nbOfLinesTheWordIsFoundIn ;
+            while ( temp != nullptr ){
+                if(temp->text.find(wordToBeFound) != string::npos){
+                    nbOfLinesTheWordIsFoundIn.push_back(counter);
+                }
+                temp = temp->nextLine ;
+                counter++ ;
+            }
+            if(nbOfLinesTheWordIsFoundIn.size() == 0){
+                cout<<"sorry but this word is not found anywhere in the file"<<endl;
+            }else{
+                cout<<"the lines that the word is present in is : ";
+                for(size_t i = 0 ;nbOfLinesTheWordIsFoundIn.size() > i ; i++ ){
+                    cout<<nbOfLinesTheWordIsFoundIn[i]<<" " ;
+                }
+                cout<<endl;
+            }
+        }
+//        int isFoundInTheString(string word , size_t startingIndex, string searchedText){
+//            if(searchedText.find(word) != string::npos){
+//            return isFoundInTheString(word,searchedText.find(word) , searchedText);
+//            }else {
+//                return -1 ;
+//            }
+//        }
+        void findAllAndReplace(string newWord ,string WordToBeReplaced) {
+            Line* temp = Start ;
+            size_t newWordSize = newWord.size() ;
+            size_t wordSize = WordToBeReplaced.size() ;
+            for(int i = 0 ;  i < numberOfLines ; i++) {
+                size_t newIndex = 0;
+                while(true){
+                    size_t foundPosition = temp->text.find(WordToBeReplaced, newIndex) ;
+                    if ( foundPosition != string::npos ){
+                        newIndex = temp->text.find(WordToBeReplaced , newIndex) + newWordSize;
+                        temp->text.replace(newIndex- newWordSize, wordSize, newWord);
+                    }else {
+                        break ;
+                    }
+                }
+                temp = temp->nextLine ;
+            }
+        }
+        void Display(){
+            Line* temp = Start ;
+            int counter = 1 ;
+            while(temp != nullptr){
+                cout<<counter<<" "<<temp->text<<endl;
+                counter++ ;
+                temp = temp->nextLine ;
+            }
+        }
     };
 
 
@@ -208,6 +283,8 @@ struct Line {
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    
+    TextEditor file ;
+    file.addLine("heeeeey this is mohamed ");
+    file.Display();
     return 0;
 }
