@@ -38,24 +38,24 @@ struct Line {
             End = nullptr ;
         }
         
-        Line* getStart() {
-            return Start ;
-        }
-        Line* getEnd() {
-            return End ;
-        }
-        int getNumberofLines() {
-            return numberOfLines ;
-        }
-        void setStart(Line* firstLine) {
-            Start = firstLine ;
-        }
-        void setEnd(Line* lastLine) {
-            End = lastLine ;
-        }
-        void setNumberOfLines(int NewNumberOfLines){
-            numberOfLines = NewNumberOfLines ;
-        }
+//        Line* getStart() {
+//            return Start ;
+//        }
+//        Line* getEnd() {
+//            return End ;
+//        }
+//        int getNumberofLines() {
+//            return numberOfLines ;
+//        }
+//        void setStart(Line* firstLine) {
+//            Start = firstLine ;
+//        }
+//        void setEnd(Line* lastLine) {
+//            End = lastLine ;
+//        }
+//        void setNumberOfLines(int NewNumberOfLines){
+//            numberOfLines = NewNumberOfLines ;
+//        }
         bool isEmpty(){
             return (Start == nullptr) ;
         }
@@ -65,6 +65,7 @@ struct Line {
                 Start = newline ;
                 End = newline ;
                 numberOfLines++ ;
+                return ;
             }else {
                 End->nextLine = newline ;
                 newline->previousLine = End ;
@@ -74,23 +75,28 @@ struct Line {
         }
         void insertLine(string newLineText , int placeOfInsertion) {
             Line* newline = new Line(newLineText) ;
-            if(isEmpty()) {
-                cout<<"sorry but line"<<placeOfInsertion<<"is not found , there are 0 lines"<<endl;
-            }else if(placeOfInsertion > numberOfLines+1) {
+            if(placeOfInsertion > numberOfLines+1 || placeOfInsertion < 1) {
                 cout<<"sorry but the line "<<placeOfInsertion<<" is out of scope the file contains : "<<numberOfLines<<" lines "<<endl;
-            }else if (numberOfLines == 1 ){
-                newline->nextLine =Start ;
-                Start->previousLine = newline ;
-                Start = newline ;
-                numberOfLines++;
+                return;
+            }else if(isEmpty()) {
+                Start = End = newline ;
+                return ;
             }else if (placeOfInsertion == numberOfLines+1){
                 End->nextLine = newline ;
                 newline->previousLine = End ;
                 End = newline ;
-            }else{
+                numberOfLines++ ;
+                return ;
+            }else if(placeOfInsertion == 1 ) {
+                newline->nextLine =Start ;
+                Start->previousLine = newline ;
+                Start = newline ;
+                numberOfLines++;
+                return ;
+            }else {
                 if(placeOfInsertion < numberOfLines/2){
                     Line* temp = Start ;
-                    int counter = 0 ;
+                    int counter = 1 ;
                     while (counter != placeOfInsertion-1) {
                         counter++;
                         temp =temp->nextLine ;
@@ -115,15 +121,17 @@ struct Line {
                 }
             }
         }
-        string GetLine(int lineNumber){
+        string getLine(int lineNumber){
             if(isEmpty()){
                 cout<<"sorry , you can't fetch this line , the file is empty"<<endl ;
-            }else if ( lineNumber > numberOfLines || lineNumber < 0 ){
+                return "error : file is Empty";
+            }else if ( lineNumber > numberOfLines || lineNumber < 1 ){
                 cout<<"sorry this line is out of scope "<<endl ;
+                return "error : line is not found";
             }else {
                 if(lineNumber < numberOfLines/2){
                     Line* temp = Start ;
-                    int counter = 0 ;
+                    int counter = 1 ;
                     while (counter != lineNumber) {
                         counter++;
                         temp =temp->nextLine ;
@@ -138,13 +146,14 @@ struct Line {
                     }
                     return temp->text ;
                 }}
-            return "NAN" ;
         }
-        void DeleteLine(int lineNumber){
+        void deleteLine(int lineNumber){
             if(isEmpty()){
                 cout<<"nothing to delete the file is empty "<<endl ;
-            }else if (lineNumber > numberOfLines || lineNumber < 0 ){
+                return ;
+            }else if (lineNumber > numberOfLines || lineNumber < 1 ){
                 cout<<"sorry, but this line is out of scope"<<endl;
+                return ;
             }else  if(numberOfLines == 1){
                 Line* delptr = Start ;
                 cout<<"the line of number 1 has been successfully deleted"<<endl ;
@@ -152,6 +161,7 @@ struct Line {
                 End = nullptr ;
                 delete delptr ;
                 numberOfLines = 0 ;
+                return ;
             }else if(lineNumber == numberOfLines){
                 Line * delptr = End ;
                 End = End->previousLine ;
@@ -159,15 +169,18 @@ struct Line {
                 delete delptr ;
                 cout<<"the last line of number : "<<numberOfLines<<" has been deleted successfully."<<endl;
                 numberOfLines-- ;
+                return ;
             }else if (lineNumber == 1 ) {
                 Line*delptr = Start ;
                 Start = Start->nextLine;
+                Start->previousLine = nullptr ;
                 delete delptr ;
                 cout<<"the line of number 1 has been successfully deleted"<<endl;
+                return ;
             }else{
                 if(lineNumber < numberOfLines/2){
                     Line* temp = Start ;
-                    int counter = 0 ;
+                    int counter = 1 ;
                     while (counter != lineNumber) {
                         counter++;
                         temp =temp->nextLine ;
@@ -193,15 +206,17 @@ struct Line {
                     numberOfLines-- ;
                 }}
         }
-        void UpdateLine(string updatedText  , int lineNumber) {
+        void updateLine(string updatedText  , int lineNumber) {
             if (isEmpty()) {
                 cout<<"sorry , you can't update this line , the file is empty "<<endl;
-            }else if (lineNumber > numberOfLines || lineNumber < 0 ) {
+                return ;
+            }else if (lineNumber > numberOfLines || lineNumber < 1 ) {
                 cout<<"sorry , but this line is out of scope "<<endl ;
+                return ;
             }else {
                 if(lineNumber < numberOfLines/2){
                     Line* temp = Start ;
-                    int counter = 0 ;
+                    int counter = 1 ;
                     while (counter != lineNumber) {
                         counter++;
                         temp =temp->nextLine ;
@@ -219,52 +234,59 @@ struct Line {
             }
         }
         void findAll(string wordToBeFound){
-            Line* temp = Start ;
-            int counter = 1 ;
-            vector<int> nbOfLinesTheWordIsFoundIn ;
-            while ( temp != nullptr ){
-                if(temp->text.find(wordToBeFound) != string::npos){
-                    nbOfLinesTheWordIsFoundIn.push_back(counter);
-                }
-                temp = temp->nextLine ;
-                counter++ ;
-            }
-            if(nbOfLinesTheWordIsFoundIn.size() == 0){
-                cout<<"sorry but this word is not found anywhere in the file"<<endl;
-            }else{
-                cout<<"the lines that the word is present in is : ";
-                for(size_t i = 0 ;nbOfLinesTheWordIsFoundIn.size() > i ; i++ ){
-                    cout<<nbOfLinesTheWordIsFoundIn[i]<<" " ;
-                }
-                cout<<endl;
-            }
-        }
-//        int isFoundInTheString(string word , size_t startingIndex, string searchedText){
-//            if(searchedText.find(word) != string::npos){
-//            return isFoundInTheString(word,searchedText.find(word) , searchedText);
-//            }else {
-//                return -1 ;
-//            }
-//        }
-        void findAllAndReplace(string newWord ,string WordToBeReplaced) {
-            Line* temp = Start ;
-            size_t newWordSize = newWord.size() ;
-            size_t wordSize = WordToBeReplaced.size() ;
-            for(int i = 0 ;  i < numberOfLines ; i++) {
-                size_t newIndex = 0;
-                while(true){
-                    size_t foundPosition = temp->text.find(WordToBeReplaced, newIndex) ;
-                    if ( foundPosition != string::npos ){
-                        newIndex = temp->text.find(WordToBeReplaced , newIndex) + newWordSize;
-                        temp->text.replace(newIndex- newWordSize, wordSize, newWord);
-                    }else {
-                        break ;
+            if(isEmpty()) {
+                cout<<"sorry but the file is empty"<<endl;
+                return ;
+            }else {
+                Line* temp = Start ;
+                int counter = 1 ;
+                vector<int> nbOfLinesTheWordIsFoundIn ;
+                while ( temp != nullptr ){
+                    if(temp->text.find(wordToBeFound) != string::npos){
+                        nbOfLinesTheWordIsFoundIn.push_back(counter);
                     }
+                    temp = temp->nextLine ;
+                    counter++ ;
                 }
-                temp = temp->nextLine ;
+                if(nbOfLinesTheWordIsFoundIn.size() == 0){
+                    cout<<"sorry but this word is not found anywhere in the file"<<endl;
+                }else{
+                    cout<<"the lines that the word is present in is : ";
+                    for(size_t i = 0 ;nbOfLinesTheWordIsFoundIn.size() > i ; i++ ){
+                        cout<<nbOfLinesTheWordIsFoundIn[i]<<" " ;
+                    }
+                    cout<<endl;
+                }
             }
         }
-        void Display(){
+        void findAllAndReplace(string newWord ,string WordToBeReplaced) {
+            if(isEmpty()) {
+                cout<<"sorry ,the file is empty"<<endl ;
+                return ;
+            }else {
+                Line* temp = Start ;
+                size_t newWordSize = newWord.size() ;
+                size_t wordSize = WordToBeReplaced.size() ;
+                for(int i = 0 ;  i < numberOfLines ; i++) {
+                    size_t newIndex = 0;
+                    while(true){
+                        size_t foundPosition = temp->text.find(WordToBeReplaced, newIndex) ;
+                        if ( foundPosition != string::npos ){
+                            newIndex = foundPosition + newWordSize;
+                            temp->text.replace(newIndex- newWordSize, wordSize, newWord);
+                        }else {
+                            break ;
+                        }
+                    }
+                    temp = temp->nextLine ;
+                }
+            }
+        }
+        void display(){
+            if(isEmpty()) {
+                cout<<"sorry , the file is empty"<<endl;
+                return ;
+            }
             Line* temp = Start ;
             int counter = 1 ;
             while(temp != nullptr){
@@ -285,6 +307,6 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     TextEditor file ;
     file.addLine("heeeeey this is mohamed ");
-    file.Display();
+    file.display();
     return 0;
 }
